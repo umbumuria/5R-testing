@@ -42,7 +42,7 @@
       .then(data => {
         document.getElementById('header').innerHTML = data;
         
-        // Halaman awal
+        // Halaman awal (Sesuaikan ke 5rsummary.html jika ingin dashboard jadi beranda)
         const current = "home.html"; 
         loadPage(current);
         highlightNav(current);
@@ -69,7 +69,7 @@
         }
       });
 
-    // 2. Fungsi Load Page yang Stabil untuk Dashboard (Desktop & Mobile)
+    // 2. Fungsi Load Page (Optimasi Desktop & Mobile)
     function loadPage(page) {
       const content = document.getElementById('content');
       content.style.opacity = 0;
@@ -77,23 +77,25 @@
       fetch(page)
         .then(res => res.text())
         .then(data => {
-          // Bersihkan script lama agar tidak bentrok
+          // Bersihkan script dinamis sebelumnya agar tidak bentrok
           document.querySelectorAll('.dynamic-script').forEach(s => s.remove());
 
           const temp = document.createElement('div');
           temp.innerHTML = data;
+          
+          // Ambil elemen #content dari file target, jika tidak ada ambil semua
           const innerHTML = temp.querySelector('#content')?.innerHTML || data;
 
           setTimeout(() => {
             content.innerHTML = innerHTML;
             content.style.opacity = 1;
 
-            // Pisahkan Library (Chart.js/PapaParse) dan Kode Dashboard
+            // Pisahkan Library (External) dan Kode Dashboard (Inline)
             const scripts = Array.from(temp.querySelectorAll('script'));
             const externalScripts = scripts.filter(s => s.src);
             const inlineScripts = scripts.filter(s => !s.src);
 
-            // Muat Library dulu, baru jalankan kode (Penting untuk koneksi mobile lambat)
+            // Muat library dulu secara berurutan, setelah selesai baru jalankan kodenya
             loadExternalScripts(externalScripts, () => {
               inlineScripts.forEach(oldScript => {
                 const newScript = document.createElement('script');
@@ -104,10 +106,14 @@
             });
           }, 150);
         })
-        .catch(err => console.error("Gagal memuat halaman:", err));
+        .catch(err => {
+          console.error("Gagal memuat halaman:", err);
+          content.innerHTML = "Error loading content.";
+          content.style.opacity = 1;
+        });
     }
 
-    // Fungsi urutan muat script external
+    // Fungsi bantu muat script external secara berurutan (Sequentially)
     function loadExternalScripts(scripts, callback) {
       if (scripts.length === 0) return callback();
       let loaded = 0;
@@ -115,6 +121,7 @@
         const newScript = document.createElement('script');
         newScript.src = s.src;
         newScript.className = 'dynamic-script';
+        newScript.async = false; // Memastikan library dimuat berurutan
         newScript.onload = () => {
           loaded++;
           if (loaded === scripts.length) callback();
