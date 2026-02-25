@@ -99,8 +99,12 @@
                   };
                   rawData = results.data.filter(d => d[colMap.group] && d[colMap.score5r]);
                   
+                  // SET DEFAULT TAHUN BERJALAN
+                  const currentYear = new Date().getFullYear().toString();
+                  document.getElementById('f-tahun').value = currentYear;
+
                   updateAllDatalists(rawData);
-                  applyFilters();
+                  applyFilters(); // Filter otomatis akan berjalan menggunakan tahun default
               }
           });
 
