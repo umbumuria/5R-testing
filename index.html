@@ -1,165 +1,141 @@
-<div id="content" style="padding: 40px 20px; max-width: 1200px; margin: auto; position: relative; font-family: 'Plus Jakarta Sans', sans-serif;">
-  
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>5R MSM</title>
+  <link rel="icon" href="https://res.cloudinary.com/ddhsrvefu/image/upload/v1745992627/1-removebg-preview_w6oqhr.png" type="image/png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <style>
-      #content .glass-card { background: white; border-radius: 1rem; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
-      #content .filter-select { background-color: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 600; color: #475569; outline: none; width: 100%; box-sizing: border-box; }
-      #content .stat-val { font-size: 2rem; font-weight: 800; color: #1e293b; line-height: 1; }
-      .filter-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 150px; }
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: url('https://res.cloudinary.com/ddhsrvefu/image/upload/v1744159479/Slidesdocs_dark_black_future_medical_data_9a4be803ba_ywgbec.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #e5e7eb;
+      transition: margin-left 0.3s ease;
+    }
+    #content {
+      margin-left: 220px;
+      padding: 20px;
+      transition: margin-left 0.3s ease, opacity 0.3s ease;
+      min-height: 100vh;
+    }
+    /* Optimasi Mobile */
+    @media (max-width: 768px) {
+      #content { margin-left: 0; padding: 10px; }
+      body:not(.sidebar-hidden) #content { margin-left: 0; }
+    }
+    .sidebar-hidden #content {
+      margin-left: 0;
+    }
   </style>
-
-  <div class="glass-card" style="padding: 20px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; margin-top: 40px;">
-      <div class="filter-group">
-          <label style="font-size: 0.7rem; font-weight: bold; color: #64748b;">DEPARTEMEN</label>
-          <input list="list-dept" id="filter-dept" class="filter-select" placeholder="Ketik/Pilih Dept..." oninput="applyCascadingFilter('dept')">
-          <datalist id="list-dept"></datalist>
-      </div>
-      <div class="filter-group">
-          <label style="font-size: 0.7rem; font-weight: bold; color: #64748b;">AREA</label>
-          <input list="list-area" id="filter-area" class="filter-select" placeholder="Ketik/Pilih Area..." oninput="applyCascadingFilter('area')">
-          <datalist id="list-area"></datalist>
-      </div>
-      <div class="filter-group">
-          <label style="font-size: 0.7rem; font-weight: bold; color: #64748b;">AUDITOR</label>
-          <input list="list-auditor" id="filter-auditor" class="filter-select" placeholder="Ketik/Pilih Auditor..." oninput="applyCascadingFilter('auditor')">
-          <datalist id="list-auditor"></datalist>
-      </div>
-  </div>
-
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px;">
-      <div class="glass-card" style="padding: 15px; text-align: center;">
-          <div style="font-size: 0.7rem; color: #64748b; font-weight: 700;">TOTAL AUDIT</div>
-          <div id="stat-total" class="stat-val">0</div>
-      </div>
-      <div class="glass-card" style="padding: 15px; text-align: center;">
-          <div style="font-size: 0.7rem; color: #64748b; font-weight: 700;">RATA-RATA SKOR</div>
-          <div id="stat-avg" class="stat-val">0%</div>
-      </div>
-  </div>
-
-  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-      <div class="glass-card" style="padding: 20px; min-height: 300px;">
-          <h3 style="font-size: 0.9rem; margin-bottom: 15px; color: #1e293b;">Trend Skor Mingguan</h3>
-          <div style="height: 250px;"><canvas id="chartTrend"></canvas></div>
-      </div>
-      <div class="glass-card" style="padding: 20px; min-height: 300px;">
-          <h3 style="font-size: 0.9rem; margin-bottom: 15px; color: #1e293b;">Pencapaian per Kategori (R)</h3>
-          <div style="height: 250px;"><canvas id="chartRadar"></canvas></div>
-      </div>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <div id="header"></div>
+  <div id="content"></div>
+  <div id="footer"></div>
 
   <script>
-      (function() {
-          let allData = [];
-          let charts = {};
+    // 1. Load Header & Inisialisasi Navigasi
+    fetch('header.html')
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById('header').innerHTML = data;
+        
+        // Halaman awal
+        const current = "home.html"; 
+        loadPage(current);
+        highlightNav(current);
 
-          const csvUrl = 'https://docs.google.com/spreadsheets/d/1D9ETydSBD-7XgM-PxK0Q8y4qSHBlt_40obqCe6k5pao/export?format=csv&gid=517769534';
+        // Listener klik navigasi (Event Delegation)
+        document.addEventListener('click', function (e) {
+          const btn = e.target.closest('.nav-button');
+          if (!btn) return;
+          
+          const page = btn.getAttribute('href');
+          if (page && !page.startsWith('http')) {
+            e.preventDefault();
+            loadPage(page);
+            highlightNav(page);
+          }
+        });
 
-          Papa.parse(csvUrl, {
-              download: true,
-              header: true,
-              complete: function(results) {
-                  allData = results.data.filter(d => d.DEPT);
-                  // Isi datalist awal
-                  updateDatalists(allData);
-                  processData(allData);
-              }
+        // Toggle sidebar
+        const toggleBtn = document.getElementById('toggleSidebar');
+        if (toggleBtn) {
+          toggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('sidebar-hidden');
           });
+        }
+      });
 
-          // Fungsi untuk update pilihan di dropdown (datalist)
-          function updateDatalists(data) {
-              const depts = [...new Set(data.map(d => d.DEPT))].sort();
-              const areas = [...new Set(data.map(d => d.AREA))].sort();
-              const auditors = [...new Set(data.map(d => d.AUDITOR))].sort();
+    // 2. Fungsi Load Page yang Stabil untuk Dashboard (Desktop & Mobile)
+    function loadPage(page) {
+      const content = document.getElementById('content');
+      content.style.opacity = 0;
 
-              populate('list-dept', depts);
-              populate('list-area', areas);
-              populate('list-auditor', auditors);
-          }
+      fetch(page)
+        .then(res => res.text())
+        .then(data => {
+          // Bersihkan script lama agar tidak bentrok
+          document.querySelectorAll('.dynamic-script').forEach(s => s.remove());
 
-          function populate(id, items) {
-              const el = document.getElementById(id);
-              el.innerHTML = '<option value="All">';
-              items.forEach(item => { if(item) el.innerHTML += `<option value="${item}">`; });
-          }
+          const temp = document.createElement('div');
+          temp.innerHTML = data;
+          const innerHTML = temp.querySelector('#content')?.innerHTML || data;
 
-          // Fungsi Cascading Filter
-          window.applyCascadingFilter = function(trigger) {
-              const dVal = document.getElementById('filter-dept').value;
-              const aVal = document.getElementById('filter-area').value;
-              const auVal = document.getElementById('filter-auditor').value;
+          setTimeout(() => {
+            content.innerHTML = innerHTML;
+            content.style.opacity = 1;
 
-              // Filter data berdasarkan input
-              let filtered = allData.filter(d => {
-                  return (dVal === '' || dVal === 'All' || d.DEPT === dVal) &&
-                         (aVal === '' || aVal === 'All' || d.AREA === aVal) &&
-                         (auVal === '' || auVal === 'All' || d.AUDITOR === auVal);
+            // Pisahkan Library (Chart.js/PapaParse) dan Kode Dashboard
+            const scripts = Array.from(temp.querySelectorAll('script'));
+            const externalScripts = scripts.filter(s => s.src);
+            const inlineScripts = scripts.filter(s => !s.src);
+
+            // Muat Library dulu, baru jalankan kode (Penting untuk koneksi mobile lambat)
+            loadExternalScripts(externalScripts, () => {
+              inlineScripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                newScript.textContent = oldScript.textContent;
+                newScript.className = 'dynamic-script';
+                document.body.appendChild(newScript);
               });
+            });
+          }, 150);
+        })
+        .catch(err => console.error("Gagal memuat halaman:", err));
+    }
 
-              // Jika ganti Dept, maka list Area & Auditor menyusut menyesuaikan data yang terfilter
-              if(trigger === 'dept') {
-                  const subAreas = [...new Set(filtered.map(d => d.AREA))].sort();
-                  populate('list-area', subAreas);
-              }
+    // Fungsi urutan muat script external
+    function loadExternalScripts(scripts, callback) {
+      if (scripts.length === 0) return callback();
+      let loaded = 0;
+      scripts.forEach(s => {
+        const newScript = document.createElement('script');
+        newScript.src = s.src;
+        newScript.className = 'dynamic-script';
+        newScript.onload = () => {
+          loaded++;
+          if (loaded === scripts.length) callback();
+        };
+        document.body.appendChild(newScript);
+      });
+    }
 
-              processData(filtered);
-          };
+    // 3. Highlight Menu Aktif
+    function highlightNav(page) {
+      document.querySelectorAll('.nav-button').forEach(b => {
+        b.classList.toggle('active', b.getAttribute('href') === page);
+      });
+    }
 
-          function processData(data) {
-              if(data.length === 0) return;
-
-              // Update Statistik
-              document.getElementById('stat-total').innerText = data.length;
-              const avg = data.reduce((acc, curr) => acc + parseFloat(curr.TOTAL || 0), 0) / data.length;
-              document.getElementById('stat-avg').innerText = avg.toFixed(1) + '%';
-
-              // Logika Chart (Trend Mingguan)
-              const weeks = [...new Set(data.map(d => d.MINGGU))].sort();
-              const weekScores = weeks.map(w => {
-                  const dWeek = data.filter(d => d.MINGGU === w);
-                  return (dWeek.reduce((a, b) => a + parseFloat(b.TOTAL || 0), 0) / dWeek.length).toFixed(1);
-              });
-
-              renderChart('chartTrend', weeks, [{
-                  label: 'Skor 5R',
-                  data: weekScores,
-                  borderColor: '#4f46e5',
-                  backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                  fill: true,
-                  tension: 0.4
-              }], 'line');
-
-              // Logika Chart Radar (5R)
-              const rKeys = ['R1', 'R2', 'R3', 'R4', 'R5'];
-              const rLabels = ['RINGKAS', 'RAPI', 'RESIK', 'RAWAT', 'RAJIN'];
-              const rAvg = rKeys.map(k => {
-                  return (data.reduce((a, b) => a + parseFloat(b[k] || 0), 0) / data.length).toFixed(1);
-              });
-
-              renderChart('chartRadar', rLabels, [{
-                  label: 'Pencapaian',
-                  data: rAvg,
-                  backgroundColor: 'rgba(6, 182, 212, 0.2)',
-                  borderColor: '#06b6d4',
-                  borderWidth: 2
-              }], 'radar');
-          }
-
-          function renderChart(id, labels, datasets, type) {
-              if(charts[id]) charts[id].destroy();
-              charts[id] = new Chart(document.getElementById(id), {
-                  type: type,
-                  data: { labels, datasets },
-                  options: {
-                      maintainAspectRatio: false,
-                      scales: type !== 'radar' ? {
-                          y: { min: 0, max: 100 }
-                      } : {}
-                  }
-              });
-          }
-      })();
+    // 4. Load Footer
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById('footer').innerHTML = data;
+      });
   </script>
-</div>
+</body>
+</html>
