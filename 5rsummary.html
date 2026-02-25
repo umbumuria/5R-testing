@@ -59,12 +59,7 @@
       </div>
   </div>
 
-  <div class="glass-card" style="padding: 24px; margin-bottom: 32px;">
-      <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 12px; margin-bottom: 16px;">Trend Skor 5R Bulanan</h3>
-      <div style="height: 300px;"><canvas id="chartTrend"></canvas></div>
-  </div>
-
-  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 32px;">
       <div class="glass-card" style="padding: 24px;">
           <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 10px; margin-bottom: 16px;">5R Score vs Target</h3>
           <div style="height: 250px;"><canvas id="chart5R"></canvas></div>
@@ -77,6 +72,11 @@
           <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 10px; margin-bottom: 16px;">Energy Saving (S2)</h3>
           <div style="height: 250px;"><canvas id="chartEnergy"></canvas></div>
       </div>
+  </div>
+
+  <div class="glass-card" style="padding: 24px; margin-bottom: 32px;">
+      <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 12px; margin-bottom: 16px;">Trend Skor 5R Bulanan</h3>
+      <div style="height: 300px;"><canvas id="chartTrend"></canvas></div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
@@ -99,7 +99,6 @@
                   };
                   rawData = results.data.filter(d => d[colMap.group] && d[colMap.score5r]);
                   
-                  // Initial Populate Datalists
                   updateAllDatalists(rawData);
                   applyFilters();
               }
@@ -137,11 +136,9 @@
                   (!fT || fT === 'SEMUA' || d[colMap.tahun]?.trim() === fT)
               );
 
-              // LOGIKA CASCADING: Jika user input Group, pilihan Lokasi menyusut (dan sebaliknya)
               if (triggerSource === 'group' || triggerSource === 'bulan' || triggerSource === 'tahun') {
                   updateAllDatalists(filtered);
               }
-
               updateDashboard(filtered);
           };
 
