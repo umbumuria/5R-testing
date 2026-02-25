@@ -28,66 +28,89 @@
 <body>
   <div id="header"></div>
   <div id="content"></div>
+  <div id="footer"></div>
 
   <script>
-    // Load header (sidebar + nav buttons)
+    // 1. Load Header & Inisialisasi Navigasi
     fetch('header.html')
       .then(res => res.text())
       .then(data => {
         document.getElementById('header').innerHTML = data;
-        const current = "home.html";
+        
+        // Tentukan halaman awal (misal 5rsummary.html atau home.html)
+        const current = "home.html"; 
         loadPage(current);
         highlightNav(current);
 
-        // Pasang listener setelah header dimuat
-        document.querySelectorAll('.nav-button').forEach(btn => {
-          btn.addEventListener('click', function (e) {
-            const page = this.getAttribute('href');
-            if (page.startsWith('http')) return; // biarkan link eksternal berjalan normal
+        // Pasang listener klik pada tombol navigasi
+        document.addEventListener('click', function (e) {
+          const btn = e.target.closest('.nav-button');
+          if (!btn) return;
+          
+          const page = btn.getAttribute('href');
+          if (page && !page.startsWith('http')) {
             e.preventDefault();
             loadPage(page);
             highlightNav(page);
-          });
+          }
         });
 
         // Toggle sidebar
-        document.getElementById('toggleSidebar')
-          .addEventListener('click', () => document.body.classList.toggle('sidebar-hidden'));
+        const toggleBtn = document.getElementById('toggleSidebar');
+        if (toggleBtn) {
+          toggleBtn.addEventListener('click', () => {
+            document.body.classList.toggle('sidebar-hidden');
+          });
+        }
       });
 
+    // 2. Fungsi Load Page dengan Eksekusi Script
     function loadPage(page) {
       const content = document.getElementById('content');
       content.style.opacity = 0;
+
       fetch(page)
         .then(res => res.text())
         .then(data => {
           const temp = document.createElement('div');
           temp.innerHTML = data;
-          const inner = temp.querySelector('#content')?.innerHTML || '404 - Page Not Found';
+          
+          // Ambil bagian dalam #content dari file tujuan, jika tidak ada ambil semua data
+          const innerHTML = temp.querySelector('#content')?.innerHTML || data;
+
           setTimeout(() => {
-            content.innerHTML = inner;
+            content.innerHTML = innerHTML;
             content.style.opacity = 1;
+
+            // PENTING: Jalankan ulang semua tag <script> agar dashboard muncul
+            const scripts = temp.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+              const newScript = document.createElement('script');
+              if (oldScript.src) {
+                newScript.src = oldScript.src; // Untuk library eksternal (Chart.js)
+              } else {
+                newScript.textContent = oldScript.textContent; // Untuk kode dashboard
+              }
+              document.body.appendChild(newScript);
+            });
           }, 150);
-        });
+        })
+        .catch(err => console.error("Gagal memuat halaman:", err));
     }
 
+    // 3. Highlight Menu Aktif
     function highlightNav(page) {
       document.querySelectorAll('.nav-button').forEach(b => {
         b.classList.toggle('active', b.getAttribute('href') === page);
       });
     }
-  </script>
-  
-  
-  <div id="footer"></div>
-<script>
-  // Load footer
-  fetch('footer.html')
-    .then(res => res.text())
-    .then(data => {
-      document.getElementById('footer').innerHTML = data;
-    });
-</script>
 
+    // 4. Load Footer
+    fetch('footer.html')
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById('footer').innerHTML = data;
+      });
+  </script>
 </body>
 </html>
