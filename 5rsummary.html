@@ -1,232 +1,228 @@
 <div id="content" style="padding: 40px 20px; max-width: 1200px; margin: auto; position: relative; font-family: 'Plus Jakarta Sans', sans-serif;">
-  
-  <style>
-      #content .glass-card { background: white; border-radius: 1rem; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
-      #content .filter-input { background-color: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 600; color: #475569; outline: none; width: 100%; box-sizing: border-box; }
-      
-      /* CSS UNTUK RATA TENGAH ANGKA */
-      #content .stat-val { 
-          font-size: 3.5rem; 
-          font-weight: 800; 
-          color: #1e293b; 
-          line-height: 1; 
-          display: block;
-          text-align: center; /* Memastikan teks angka di tengah */
-          width: 100%;
-      }
+  
+  <style>
+      #content .glass-card { background: white; border-radius: 1rem; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
+      #content .filter-input { background-color: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 600; color: #475569; outline: none; width: 100%; box-sizing: border-box; }
+      
+      /* PERBAIKAN RATA TENGAH TANPA MERUSAK STRUKTUR */
+      #content .stat-card-custom {
+          display: flex;
+          flex-direction: column;
+          align-items: center; /* Rata tengah semua isi card */
+          text-align: center;
+      }
 
-      /* Helper untuk memaksa isi card ke tengah */
-      .center-content {
-          display: flex;
-          flex-direction: column;
-          align-items: center; /* Rata tengah horizontal */
-          justify-content: center;
-          text-align: center;
-      }
-      
-      .filter-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 140px; }
-  </style>
+      #content .stat-val { 
+          font-size: 3.5rem; 
+          font-weight: 800; 
+          color: #1e293b; 
+          line-height: 1; 
+          display: block;
+          margin: 10px 0; /* Memberi jarak atas bawah */
+      }
+      
+      .filter-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 140px; }
+  </style>
 
-  <h1 style="position: fixed; top: 0; left: 0; width: 100%; text-align: center; font-size: 1.5rem; text-shadow: 0 0 10px rgba(255,255,255,0.3); color: #fff; background-color: rgba(0, 0, 0, 0.7); z-index: 999; padding: 10px 0; margin: 0; backdrop-filter: blur(3px);">
-    DASHBOARD AUDIT 5R
-  </h1>
+  <h1 style="position: fixed; top: 0; left: 0; width: 100%; text-align: center; font-size: 1.5rem; text-shadow: 0 0 10px rgba(255,255,255,0.3); color: #fff; background-color: rgba(0, 0, 0, 0.7); z-index: 999; padding: 10px 0; margin: 0; backdrop-filter: blur(3px);">
+    DASHBOARD AUDIT 5R
+  </h1>
 
-  <div style="height: 60px;"></div>
+  <div style="height: 60px;"></div>
 
-    <div class="glass-card" style="padding: 20px; margin-bottom: 32px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;">
-      <div class="filter-group">
-          <label style="font-size: 9px; font-weight: 800; color: #94a3b8;">GROUP</label>
-          <input list="l-group" id="f-group" class="filter-input" placeholder="Cari Group..." oninput="applyFilters('group')">
-          <datalist id="l-group"></datalist>
-      </div>
-      <div class="filter-group">
-          <label style="font-size: 9px; font-weight: 800; color: #94a3b8;">LOKASI</label>
-          <input list="l-lokasi" id="f-lokasi" class="filter-input" placeholder="Cari Lokasi..." oninput="applyFilters('lokasi')">
-          <datalist id="l-lokasi"></datalist>
-      </div>
-      <div class="filter-group">
-          <label style="font-size: 9px; font-weight: 800; color: #94a3b8;">AUDITOR</label>
-          <input list="l-auditor" id="f-auditor" class="filter-input" placeholder="Cari Auditor..." oninput="applyFilters('auditor')">
-          <datalist id="l-auditor"></datalist>
-      </div>
-      <div class="filter-group">
-          <label style="font-size: 9px; font-weight: 800; color: #94a3b8;">BULAN</label>
-          <input list="l-bulan" id="f-bulan" class="filter-input" placeholder="Cari Bulan..." oninput="applyFilters('bulan')">
-          <datalist id="l-bulan"></datalist>
-      </div>
-      <div class="filter-group" style="max-width: 100px;">
-          <label style="font-size: 9px; font-weight: 800; color: #94a3b8;">TAHUN</label>
-          <input list="l-tahun" id="f-tahun" class="filter-input" placeholder="Tahun" oninput="applyFilters('tahun')">
-          <datalist id="l-tahun"></datalist>
-      </div>
-  </div>
+  <div class="glass-card" style="padding: 20px; margin-bottom: 32px; display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;">
+      <div class="filter-group">
+          <label style="font-size: 9px; font-weight: 800; color: #94a3b8;">GROUP</label>
+          <input list="l-group" id="f-group" class="filter-input" placeholder="Cari Group..." oninput="applyFilters('group')">
+          <datalist id="l-group"></datalist>
+      </div>
+      <div class="filter-group">
+          <label style="font-size: 9px; font-weight: 800; color: #94a3b8;">LOKASI</label>
+          <input list="l-lokasi" id="f-lokasi" class="filter-input" placeholder="Cari Lokasi..." oninput="applyFilters('lokasi')">
+          <datalist id="l-lokasi"></datalist>
+      </div>
+      <div class="filter-group">
+          <label style="font-size: 9px; font-weight: 800; color: #94a3b8;">AUDITOR</label>
+          <input list="l-auditor" id="f-auditor" class="filter-input" placeholder="Cari Auditor..." oninput="applyFilters('auditor')">
+          <datalist id="l-auditor"></datalist>
+      </div>
+      <div class="filter-group">
+          <label style="font-size: 9px; font-weight: 800; color: #94a3b8;">BULAN</label>
+          <input list="l-bulan" id="f-bulan" class="filter-input" placeholder="Cari Bulan..." oninput="applyFilters('bulan')">
+          <datalist id="l-bulan"></datalist>
+      </div>
+      <div class="filter-group" style="max-width: 100px;">
+          <label style="font-size: 9px; font-weight: 800; color: #94a3b8;">TAHUN</label>
+          <input list="l-tahun" id="f-tahun" class="filter-input" placeholder="Tahun" oninput="applyFilters('tahun')">
+          <datalist id="l-tahun"></datalist>
+      </div>
+  </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 32px;">
-      <div class="glass-card center-content" style="padding: 25px; border-top: 8px solid #f59e0b;">
-          <p style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px;">Avg 5R Score</p>
-          <span id="stat-5r" class="stat-val">0</span>
-          <span style="font-size: 10px; font-weight: 800; color: #b45309; background: #fef3c7; padding: 4px 12px; border-radius: 20px; margin-top: 8px;">Target 95</span>
-      </div>
-      <div class="glass-card center-content" style="padding: 25px; border-top: 8px solid #ef4444;">
-          <p style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px;">Safety Score (S1)</p>
-          <span id="stat-s1" class="stat-val">0</span>
-      </div>
-      <div class="glass-card center-content" style="padding: 25px; border-top: 8px solid #3b82f6;">
-          <p style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 5px;">Energy Score (S2)</p>
-          <span id="stat-s2" class="stat-val">0</span>
-      </div>
-  </div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 32px;">
+      <div class="glass-card stat-card-custom" style="padding: 25px; border-left: 8px solid #f59e0b;">
+          <p style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 0;">Avg 5R Score</p>
+          <span id="stat-5r" class="stat-val">0</span>
+          <span style="font-size: 10px; font-weight: 800; color: #b45309; background: #fef3c7; padding: 4px 12px; border-radius: 20px;">Target 95</span>
+      </div>
+      <div class="glass-card stat-card-custom" style="padding: 25px; border-left: 8px solid #ef4444;">
+          <p style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 0;">Safety Score (S1)</p>
+          <span id="stat-s1" class="stat-val">0</span>
+          <div style="height: 18px;"></div> </div>
+      <div class="glass-card stat-card-custom" style="padding: 25px; border-left: 8px solid #3b82f6;">
+          <p style="font-size: 11px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 0;">Energy Score (S2)</p>
+          <span id="stat-s2" class="stat-val">0</span>
+          <div style="height: 18px;"></div> </div>
+  </div>
 
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 32px;">
-      <div class="glass-card" style="padding: 24px;">
-          <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 10px; margin-bottom: 16px;">5R Score vs Target</h3>
-          <div style="height: 250px;"><canvas id="chart5R"></canvas></div>
-      </div>
-      <div class="glass-card" style="padding: 24px;">
-          <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 10px; margin-bottom: 16px;">Safety Performance (S1)</h3>
-          <div style="height: 250px;"><canvas id="chartSafety"></canvas></div>
-      </div>
-      <div class="glass-card" style="padding: 24px;">
-          <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 10px; margin-bottom: 16px;">Energy Saving (S2)</h3>
-          <div style="height: 250px;"><canvas id="chartEnergy"></canvas></div>
-      </div>
-  </div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 32px;">
+      <div class="glass-card" style="padding: 24px;">
+          <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 10px; margin-bottom: 16px;">5R Score vs Target</h3>
+          <div style="height: 250px;"><canvas id="chart5R"></canvas></div>
+      </div>
+      <div class="glass-card" style="padding: 24px;">
+          <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 10px; margin-bottom: 16px;">Safety Performance (S1)</h3>
+          <div style="height: 250px;"><canvas id="chartSafety"></canvas></div>
+      </div>
+      <div class="glass-card" style="padding: 24px;">
+          <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 10px; margin-bottom: 16px;">Energy Saving (S2)</h3>
+          <div style="height: 250px;"><canvas id="chartEnergy"></canvas></div>
+      </div>
+  </div>
 
-  <div class="glass-card" style="padding: 24px; margin-bottom: 32px;">
-      <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 12px; margin-bottom: 16px;">Trend Skor 5R Bulanan</h3>
-      <div style="height: 300px;"><canvas id="chartTrend"></canvas></div>
-  </div>
+  <div class="glass-card" style="padding: 24px; margin-bottom: 32px;">
+      <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 12px; margin-bottom: 16px;">Trend Skor 5R Bulanan</h3>
+      <div style="height: 300px;"><canvas id="chartTrend"></canvas></div>
+  </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-      (function() {
-          const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT88wHMtZWXtIH3qMCZkLm8S7gDYV6n42v8AHrF6YRpoIMsixdG4EfTiUKe2ERQ7HuAShHSW_mvTg4T/pub?output=csv';
-          let rawData = [], colMap = {}, charts = {};
-          const monthOrder = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+      (function() {
+          const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT88wHMtZWXtIH3qMCZkLm8S7gDYV6n42v8AHrF6YRpoIMsixdG4EfTiUKe2ERQ7HuAShHSW_mvTg4T/pub?output=csv';
+          let rawData = [], colMap = {}, charts = {};
+          const monthOrder = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
 
-          Papa.parse(csvUrl, {
-              download: true, header: true, skipEmptyLines: true,
-              complete: function(results) {
-                  const headers = results.meta.fields;
-                  const find = (keys) => headers.find(h => keys.some(k => h.trim().toUpperCase() === k.toUpperCase()));
-                  colMap = {
-                      group: find(['GROUP']), lokasi: find(['LOKASI', 'AREA']), auditor: find(['AUDITOR']),
-                      bulan: find(['BULAN']), tahun: find(['YEAR', 'TAHUN']), score5r: find(['5R']),
-                      s1: find(['S1']), s2: find(['S2'])
-                  };
-                  rawData = results.data.filter(d => d[colMap.group] && d[colMap.score5r]);
-                  const currentYear = new Date().getFullYear().toString();
-                  document.getElementById('f-tahun').value = currentYear;
-                  updateAllDatalists(rawData);
-                  applyFilters();
-              }
-          });
+          Papa.parse(csvUrl, {
+              download: true, header: true, skipEmptyLines: true,
+              complete: function(results) {
+                  const headers = results.meta.fields;
+                  const find = (keys) => headers.find(h => keys.some(k => h.trim().toUpperCase() === k.toUpperCase()));
+                  colMap = {
+                      group: find(['GROUP']), lokasi: find(['LOKASI', 'AREA']), auditor: find(['AUDITOR']),
+                      bulan: find(['BULAN']), tahun: find(['YEAR', 'TAHUN']), score5r: find(['5R']),
+                      s1: find(['S1']), s2: find(['S2'])
+                  };
+                  rawData = results.data.filter(d => d[colMap.group] && d[colMap.score5r]);
+                  const currentYear = new Date().getFullYear().toString();
+                  document.getElementById('f-tahun').value = currentYear;
+                  updateAllDatalists(rawData);
+                  applyFilters();
+              }
+          });
 
-          function updateAllDatalists(data) {
-              const fill = (listId, key, sortArr = null) => {
-                  const dl = document.getElementById(listId);
-                  let vals = [...new Set(data.map(d => d[key]?.trim()))].filter(v => v);
-                  if (sortArr) vals.sort((a, b) => sortArr.indexOf(a.toUpperCase()) - sortArr.indexOf(b.toUpperCase()));
-                  else vals.sort();
-                  dl.innerHTML = '<option value="SEMUA">';
-                  vals.forEach(v => dl.innerHTML += `<option value="${v}">`);
-              };
-              fill('l-group', colMap.group);
-              fill('l-lokasi', colMap.lokasi);
-              fill('l-auditor', colMap.auditor);
-              fill('l-bulan', colMap.bulan, monthOrder);
-              fill('l-tahun', colMap.tahun);
-          }
+          function updateAllDatalists(data) {
+              const fill = (listId, key, sortArr = null) => {
+                  const dl = document.getElementById(listId);
+                  let vals = [...new Set(data.map(d => d[key]?.trim()))].filter(v => v);
+                  if (sortArr) vals.sort((a, b) => sortArr.indexOf(a.toUpperCase()) - sortArr.indexOf(b.toUpperCase()));
+                  else vals.sort();
+                  dl.innerHTML = '<option value="SEMUA">';
+                  vals.forEach(v => dl.innerHTML += `<option value="${v}">`);
+              };
+              fill('l-group', colMap.group);
+              fill('l-lokasi', colMap.lokasi);
+              fill('l-auditor', colMap.auditor);
+              fill('l-bulan', colMap.bulan, monthOrder);
+              fill('l-tahun', colMap.tahun);
+          }
 
-          window.applyFilters = function(triggerSource) {
-              const fG = document.getElementById('f-group').value;
-              const fL = document.getElementById('f-lokasi').value;
-              const fA = document.getElementById('f-auditor').value;
-              const fB = document.getElementById('f-bulan').value;
-              const fT = document.getElementById('f-tahun').value;
-              const filtered = rawData.filter(d => 
-                  (!fG || fG === 'SEMUA' || d[colMap.group]?.trim() === fG) && 
-                  (!fL || fL === 'SEMUA' || d[colMap.lokasi]?.trim() === fL) && 
-                  (!fA || fA === 'SEMUA' || d[colMap.auditor]?.trim() === fA) && 
-                  (!fB || fB === 'SEMUA' || d[colMap.bulan]?.trim() === fB) && 
-                  (!fT || fT === 'SEMUA' || d[colMap.tahun]?.trim() === fT)
-              );
-              if (triggerSource === 'group' || triggerSource === 'bulan' || triggerSource === 'tahun') {
-                  updateAllDatalists(filtered);
-              }
-              updateDashboard(filtered);
-          };
+          window.applyFilters = function(triggerSource) {
+              const fG = document.getElementById('f-group').value;
+              const fL = document.getElementById('f-lokasi').value;
+              const fA = document.getElementById('f-auditor').value;
+              const fB = document.getElementById('f-bulan').value;
+              const fT = document.getElementById('f-tahun').value;
+              const filtered = rawData.filter(d => 
+                  (!fG || fG === 'SEMUA' || d[colMap.group]?.trim() === fG) && 
+                  (!fL || fL === 'SEMUA' || d[colMap.lokasi]?.trim() === fL) && 
+                  (!fA || fA === 'SEMUA' || d[colMap.auditor]?.trim() === fA) && 
+                  (!fB || fB === 'SEMUA' || d[colMap.bulan]?.trim() === fB) && 
+                  (!fT || fT === 'SEMUA' || d[colMap.tahun]?.trim() === fT)
+              );
+              if (triggerSource === 'group' || triggerSource === 'bulan' || triggerSource === 'tahun') {
+                  updateAllDatalists(filtered);
+              }
+              updateDashboard(filtered);
+          };
 
-          function updateDashboard(data) {
-              const uniqueGroups = [...new Set(data.map(d => d[colMap.group].trim()))].sort();
-              const uniqueMonths = [...new Set(data.map(d => d[colMap.bulan].trim()))]
-                  .sort((a, b) => monthOrder.indexOf(a.toUpperCase()) - monthOrder.indexOf(b.toUpperCase()));
+          function updateDashboard(data) {
+              const uniqueGroups = [...new Set(data.map(d => d[colMap.group].trim()))].sort();
+              const uniqueMonths = [...new Set(data.map(d => d[colMap.bulan].trim()))]
+                  .sort((a, b) => monthOrder.indexOf(a.toUpperCase()) - monthOrder.indexOf(b.toUpperCase()));
 
-              const getAvg = (filterVal, filterKey, targetKey) => {
-                  const subset = data.filter(d => d[filterKey].trim() === filterVal);
-                  if (subset.length === 0) return 0;
-                  const total = subset.reduce((s, r) => s + (parseFloat(r[targetKey]) || 0), 0);
-                  return Math.round(total / subset.length);
-              };
+              const getAvg = (filterVal, filterKey, targetKey) => {
+                  const subset = data.filter(d => d[filterKey].trim() === filterVal);
+                  if (subset.length === 0) return 0;
+                  const total = subset.reduce((s, r) => s + (parseFloat(r[targetKey]) || 0), 0);
+                  return Math.round(total / subset.length);
+              };
 
-              const data5R = uniqueGroups.map(g => getAvg(g, colMap.group, colMap.score5r));
-              const dataS1 = uniqueGroups.map(g => getAvg(g, colMap.group, colMap.s1));
-              const dataS2 = uniqueGroups.map(g => getAvg(g, colMap.group, colMap.s2));
-              const trendActual = uniqueMonths.map(m => getAvg(m, colMap.bulan, colMap.score5r));
-              
-              const calcTotalAvg = (dataset) => dataset.length ? Math.round(dataset.reduce((a,b)=>a+b,0)/dataset.length) : 0;
-              document.getElementById('stat-5r').innerText = calcTotalAvg(data5R);
-              document.getElementById('stat-s1').innerText = calcTotalAvg(dataS1);
-              document.getElementById('stat-s2').innerText = calcTotalAvg(dataS2);
+              const data5R = uniqueGroups.map(g => getAvg(g, colMap.group, colMap.score5r));
+              const dataS1 = uniqueGroups.map(g => getAvg(g, colMap.group, colMap.s1));
+              const dataS2 = uniqueGroups.map(g => getAvg(g, colMap.group, colMap.s2));
+              const trendActual = uniqueMonths.map(m => getAvg(m, colMap.bulan, colMap.score5r));
+              
+              const calcTotalAvg = (dataset) => dataset.length ? Math.round(dataset.reduce((a,b)=>a+b,0)/dataset.length) : 0;
+              document.getElementById('stat-5r').innerText = calcTotalAvg(data5R);
+              document.getElementById('stat-s1').innerText = calcTotalAvg(dataS1);
+              document.getElementById('stat-s2').innerText = calcTotalAvg(dataS2);
 
-              renderChart('chartTrend', uniqueMonths, [
-                  { label: 'SCORE', data: trendActual, type: 'line', borderColor: '#10b981', backgroundColor: '#10b981', borderWidth: 3, pointRadius: 4, tension: 0.3 },
-                  { label: 'TARGET', data: uniqueMonths.map(() => 95), type: 'line', borderColor: '#f59e0b', borderDash: [5, 5], borderWidth: 2, pointRadius: 0 }
-              ], 'line');
+              renderChart('chartTrend', uniqueMonths, [
+                  { label: 'SCORE', data: trendActual, type: 'line', borderColor: '#10b981', backgroundColor: '#10b981', borderWidth: 3, pointRadius: 4, tension: 0.3 },
+                  { label: 'TARGET', data: uniqueMonths.map(() => 95), type: 'line', borderColor: '#f59e0b', borderDash: [5, 5], borderWidth: 2, pointRadius: 0 }
+              ], 'line');
 
-              renderChart('chart5R', uniqueGroups, [
-                  { label: 'ACTUAL', data: data5R, backgroundColor: '#f59e0b', borderRadius: 4 },
-                  { label: 'TARGET', data: uniqueGroups.map(() => 95), backgroundColor: '#22d3ee', borderRadius: 4 }
-              ]);
-              renderChart('chartSafety', uniqueGroups, [{ label: 'S1', data: dataS1, backgroundColor: '#ef4444', borderRadius: 4 }]);
-              renderChart('chartEnergy', uniqueGroups, [{ label: 'S2', data: dataS2, backgroundColor: '#3b82f6', borderRadius: 4 }]);
-          }
+              renderChart('chart5R', uniqueGroups, [
+                  { label: 'ACTUAL', data: data5R, backgroundColor: '#f59e0b', borderRadius: 4 },
+                  { label: 'TARGET', data: uniqueGroups.map(() => 95), backgroundColor: '#22d3ee', borderRadius: 4 }
+              ]);
+              renderChart('chartSafety', uniqueGroups, [{ label: 'S1', data: dataS1, backgroundColor: '#ef4444', borderRadius: 4 }]);
+              renderChart('chartEnergy', uniqueGroups, [{ label: 'S2', data: dataS2, backgroundColor: '#3b82f6', borderRadius: 4 }]);
+          }
 
-          function renderChart(id, labels, datasets, type = 'bar') {
-              const canvas = document.getElementById(id);
-              if(!canvas) return;
-              if(charts[id]) charts[id].destroy();
-              charts[id] = new Chart(canvas, {
-                  type: type,
-                  data: { labels, datasets },
-                  options: {
-                      maintainAspectRatio: false,
-                      plugins: { legend: { display: type === 'line', position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } },
-                      scales: {
-                          y: { min: 50, max: 100, grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } },
-                          x: { grid: { display: false }, ticks: { font: { size: 8, weight: '700' } } }
-                      }
-                  },
-                  plugins: [{
-                      afterDatasetsDraw(chart) {
-                          const {ctx} = chart;
-                          chart.data.datasets.forEach((dataset, i) => {
-                              if (id === 'chartTrend' && dataset.label === 'TARGET') return; // Sembunyikan label untuk garis target
-                              
-                              chart.getDatasetMeta(i).data.forEach((element, index) => {
-                                  const val = dataset.data[index];
-                                  if(val > 0) {
-                                      ctx.fillStyle = (type === 'line') ? dataset.borderColor : '#334155';
-                                      ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
-                                      ctx.fillText(val, element.x, element.y - 8);
-                                  }
-                              });
-                          });
-                      }
-                  }]
-              });
-          }
-      })();
-  </script>
+          function renderChart(id, labels, datasets, type = 'bar') {
+              const canvas = document.getElementById(id);
+              if(!canvas) return;
+              if(charts[id]) charts[id].destroy();
+              charts[id] = new Chart(canvas, {
+                  type: type,
+                  data: { labels, datasets },
+                  options: {
+                      maintainAspectRatio: false,
+                      plugins: { legend: { display: type === 'line', position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } },
+                      scales: {
+                          y: { min: 50, max: 100, grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } },
+                          x: { grid: { display: false }, ticks: { font: { size: 8, weight: '700' } } }
+                      }
+                  },
+                  plugins: [{
+                      afterDatasetsDraw(chart) {
+                          const {ctx} = chart;
+                          chart.data.datasets.forEach((dataset, i) => {
+                              if (id === 'chartTrend' && dataset.label === 'TARGET') return;
+                              chart.getDatasetMeta(i).data.forEach((element, index) => {
+                                  const val = dataset.data[index];
+                                  if(val > 0) {
+                                      ctx.fillStyle = (type === 'line') ? dataset.borderColor : '#334155';
+                                      ctx.font = 'bold 9px sans-serif'; ctx.textAlign = 'center';
+                                      ctx.fillText(val, element.x, element.y - 8);
+                                  }
+                              });
+                          });
+                      }
+                  }]
+              });
+          }
+      })();
+  </script>
 </div>
