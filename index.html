@@ -20,6 +20,11 @@
       transition: margin-left 0.3s ease, opacity 0.3s ease;
       min-height: 100vh;
     }
+    /* Responsif untuk Mobile */
+    @media (max-width: 768px) {
+      #content { margin-left: 0; padding: 10px; }
+      body:not(.sidebar-hidden) #content { margin-left: 0; }
+    }
     .sidebar-hidden #content {
       margin-left: 0;
     }
@@ -31,22 +36,18 @@
   <div id="footer"></div>
 
   <script>
-    // 1. Load Header & Inisialisasi Navigasi
+    // 1. Load Header
     fetch('header.html')
       .then(res => res.text())
       .then(data => {
         document.getElementById('header').innerHTML = data;
-        
-        // Tentukan halaman awal (misal 5rsummary.html atau home.html)
         const current = "home.html"; 
         loadPage(current);
         highlightNav(current);
 
-        // Pasang listener klik pada tombol navigasi
         document.addEventListener('click', function (e) {
           const btn = e.target.closest('.nav-button');
           if (!btn) return;
-          
           const page = btn.getAttribute('href');
           if (page && !page.startsWith('http')) {
             e.preventDefault();
@@ -55,7 +56,6 @@
           }
         });
 
-        // Toggle sidebar
         const toggleBtn = document.getElementById('toggleSidebar');
         if (toggleBtn) {
           toggleBtn.addEventListener('click', () => {
@@ -64,7 +64,7 @@
         }
       });
 
-    // 2. Fungsi Load Page dengan Eksekusi Script
+    // 2. Fungsi Load Page yang Dioptimalkan untuk Mobile
     function loadPage(page) {
       const content = document.getElementById('content');
       content.style.opacity = 0;
@@ -72,45 +72,61 @@
       fetch(page)
         .then(res => res.text())
         .then(data => {
+          // Bersihkan script dinamis lama agar tidak tumpang tindih
+          document.querySelectorAll('.dynamic-script').forEach(s => s.remove());
+
           const temp = document.createElement('div');
           temp.innerHTML = data;
-          
-          // Ambil bagian dalam #content dari file tujuan, jika tidak ada ambil semua data
           const innerHTML = temp.querySelector('#content')?.innerHTML || data;
 
           setTimeout(() => {
             content.innerHTML = innerHTML;
             content.style.opacity = 1;
 
-            // PENTING: Jalankan ulang semua tag <script> agar dashboard muncul
-            const scripts = temp.querySelectorAll('script');
-            scripts.forEach(oldScript => {
-              const newScript = document.createElement('script');
-              if (oldScript.src) {
-                newScript.src = oldScript.src; // Untuk library eksternal (Chart.js)
-              } else {
-                newScript.textContent = oldScript.textContent; // Untuk kode dashboard
-              }
-              document.body.appendChild(newScript);
+            const scripts = Array.from(temp.querySelectorAll('script'));
+            const externalScripts = scripts.filter(s => s.src);
+            const inlineScripts = scripts.filter(s => !s.src);
+
+            // Muat Library External terlebih dahulu secara berurutan
+            loadExternalScripts(externalScripts, () => {
+              // Setelah library selesai, baru jalankan kode dashboard
+              inlineScripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                newScript.textContent = oldScript.textContent;
+                newScript.className = 'dynamic-script';
+                document.body.appendChild(newScript);
+              });
             });
           }, 150);
         })
-        .catch(err => console.error("Gagal memuat halaman:", err));
+        .catch(err => console.error("Error:", err));
     }
 
-    // 3. Highlight Menu Aktif
+    // Fungsi pembantu untuk memuat script external secara berurutan
+    function loadExternalScripts(scripts, callback) {
+      if (scripts.length === 0) return callback();
+      let loaded = 0;
+      scripts.forEach(s => {
+        const newScript = document.createElement('script');
+        newScript.src = s.src;
+        newScript.className = 'dynamic-script';
+        newScript.onload = () => {
+          loaded++;
+          if (loaded === scripts.length) callback();
+        };
+        document.body.appendChild(newScript);
+      });
+    }
+
     function highlightNav(page) {
       document.querySelectorAll('.nav-button').forEach(b => {
         b.classList.toggle('active', b.getAttribute('href') === page);
       });
     }
 
-    // 4. Load Footer
     fetch('footer.html')
       .then(res => res.text())
-      .then(data => {
-        document.getElementById('footer').innerHTML = data;
-      });
+      .then(data => { document.getElementById('footer').innerHTML = data; });
   </script>
 </body>
 </html>
