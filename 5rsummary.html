@@ -58,6 +58,17 @@
       </div>
   </div>
 
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 24px; margin-bottom: 32px;">
+      <div class="glass-card" style="padding: 24px;">
+          <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 12px; margin-bottom: 16px;">Trend Skor 5R Bulanan</h3>
+          <div style="height: 300px;"><canvas id="chartTrend"></canvas></div>
+      </div>
+      <div class="glass-card" style="padding: 24px;">
+          <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 12px; margin-bottom: 16px;">Summary Nilai R1 - R5</h3>
+          <div style="height: 300px;"><canvas id="chartRSummary"></canvas></div>
+      </div>
+  </div>
+
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; margin-bottom: 32px;">
       <div class="glass-card" style="padding: 24px;">
           <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 10px; margin-bottom: 16px;">5R Score vs Target</h3>
@@ -73,21 +84,15 @@
       </div>
   </div>
 
-  <div class="glass-card" style="padding: 24px; margin-bottom: 32px;">
-      <h3 style="font-weight: 800; color: #334155; text-transform: uppercase; font-size: 12px; margin-bottom: 16px;">Trend Skor 5R Bulanan</h3>
-      <div style="height: 300px;"><canvas id="chartTrend"></canvas></div>
-  </div>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
   <script>
       (function() {
           const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT88wHMtZWXtIH3qMCZkLm8S7gDYV6n42v8AHrF6YRpoIMsixdG4EfTiUKe2ERQ7HuAShHSW_mvTg4T/pub?output=csv';
           let rawData = [], colMap = {}, charts = {};
           const monthOrder = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
 
-          // Plugin khusus untuk menampilkan label angka di atas grafik
+          // Plugin for Data Labels
           const chartLabelsPlugin = {
               id: 'chartLabelsPlugin',
               afterDatasetsDraw(chart) {
@@ -97,15 +102,12 @@
                   ctx.textBaseline = 'bottom';
                   ctx.font = 'bold 10px sans-serif';
                   ctx.fillStyle = '#475569';
-
                   data.datasets.forEach((dataset, i) => {
                       const meta = chart.getDatasetMeta(i);
-                      // Jangan kasih label pada garis Target supaya tidak berantakan
                       if (dataset.label === 'TARGET') return;
-
                       meta.data.forEach((element, index) => {
                           const dataVal = dataset.data[index];
-                          if (dataVal !== 0) {
+                          if (dataVal !== 0 && dataVal !== null) {
                               ctx.fillText(dataVal, element.x, element.y - 5);
                           }
                       });
@@ -128,7 +130,8 @@
                       tahun: find(['YEAR', 'TAHUN']), 
                       score5r: find(['5R']),
                       s1: find(['S1']), 
-                      s2: find(['S2'])
+                      s2: find(['S2']),
+                      r1: find(['R1']), r2: find(['R2']), r3: find(['R3']), r4: find(['R4']), r5: find(['R5'])
                   };
 
                   rawData = results.data.filter(d => d[colMap.group]);
@@ -180,7 +183,7 @@
                   .sort((a, b) => monthOrder.indexOf(a.toUpperCase()) - monthOrder.indexOf(b.toUpperCase()));
 
               const getAvg = (filterVal, filterKey, targetKey) => {
-                  const subset = data.filter(d => d[filterKey]?.trim() === filterVal);
+                  const subset = filterVal ? data.filter(d => d[filterKey]?.trim() === filterVal) : data;
                   if (subset.length === 0) return 0;
                   const total = subset.reduce((s, r) => s + (parseFloat(r[targetKey]) || 0), 0);
                   return Math.round(total / subset.length);
@@ -191,15 +194,29 @@
               const dataS2 = uniqueGroups.map(g => getAvg(g, colMap.group, colMap.s2));
               const trendActual = uniqueMonths.map(m => getAvg(m, colMap.bulan, colMap.score5r));
               
+              // R1-R5 Averages
+              const rData = [
+                  getAvg(null, null, colMap.r1),
+                  getAvg(null, null, colMap.r2),
+                  getAvg(null, null, colMap.r3),
+                  getAvg(null, null, colMap.r4),
+                  getAvg(null, null, colMap.r5)
+              ];
+
               const calcTotalAvg = (dataset) => dataset.length ? Math.round(dataset.reduce((a,b)=>a+b,0)/dataset.length) : 0;
               document.getElementById('stat-5r').innerText = calcTotalAvg(data5R);
               document.getElementById('stat-s1').innerText = calcTotalAvg(dataS1);
               document.getElementById('stat-s2').innerText = calcTotalAvg(dataS2);
 
+              // Render Charts
               renderChart('chartTrend', uniqueMonths, [
                   { label: 'SCORE', data: trendActual, type: 'line', borderColor: '#10b981', backgroundColor: '#10b981', borderWidth: 3, pointRadius: 4, tension: 0.3 },
                   { label: 'TARGET', data: uniqueMonths.map(() => 95), type: 'line', borderColor: '#f59e0b', borderDash: [5, 5], borderWidth: 2, pointRadius: 0 }
               ], 'line');
+
+              renderChart('chartRSummary', ['R1', 'R2', 'R3', 'R4', 'R5'], [
+                  { label: 'Avg Score', data: rData, backgroundColor: '#6366f1', borderRadius: 6 }
+              ]);
 
               renderChart('chart5R', uniqueGroups, [
                   { label: 'ACTUAL', data: data5R, backgroundColor: '#f59e0b', borderRadius: 4 },
@@ -216,13 +233,11 @@
               charts[id] = new Chart(canvas, {
                   type: type,
                   data: { labels, datasets },
-                  plugins: [chartLabelsPlugin], // Panggil plugin label di sini
+                  plugins: [chartLabelsPlugin],
                   options: {
                       maintainAspectRatio: false,
-                      layout: { padding: { top: 20 } }, // Ruang ekstra untuk angka di atas
-                      plugins: { 
-                          legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } 
-                      },
+                      layout: { padding: { top: 25 } },
+                      plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } },
                       scales: {
                           y: { min: 0, max: 110, grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } },
                           x: { grid: { display: false }, ticks: { font: { size: 8, weight: '700' } } }
