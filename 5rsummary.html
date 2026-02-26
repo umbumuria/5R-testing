@@ -80,11 +80,39 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
   <script>
       (function() {
           const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT88wHMtZWXtIH3qMCZkLm8S7gDYV6n42v8AHrF6YRpoIMsixdG4EfTiUKe2ERQ7HuAShHSW_mvTg4T/pub?output=csv';
           let rawData = [], colMap = {}, charts = {};
           const monthOrder = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
+
+          // Plugin khusus untuk menampilkan label angka di atas grafik
+          const chartLabelsPlugin = {
+              id: 'chartLabelsPlugin',
+              afterDatasetsDraw(chart) {
+                  const { ctx, data } = chart;
+                  ctx.save();
+                  ctx.textAlign = 'center';
+                  ctx.textBaseline = 'bottom';
+                  ctx.font = 'bold 10px sans-serif';
+                  ctx.fillStyle = '#475569';
+
+                  data.datasets.forEach((dataset, i) => {
+                      const meta = chart.getDatasetMeta(i);
+                      // Jangan kasih label pada garis Target supaya tidak berantakan
+                      if (dataset.label === 'TARGET') return;
+
+                      meta.data.forEach((element, index) => {
+                          const dataVal = dataset.data[index];
+                          if (dataVal !== 0) {
+                              ctx.fillText(dataVal, element.x, element.y - 5);
+                          }
+                      });
+                  });
+                  ctx.restore();
+              }
+          };
 
           Papa.parse(csvUrl, {
               download: true, header: true, skipEmptyLines: true,
@@ -104,29 +132,21 @@
                   };
 
                   rawData = results.data.filter(d => d[colMap.group]);
-                  
-                  // Set default tahun ke tahun sekarang
                   const currentYear = new Date().getFullYear().toString();
                   document.getElementById('f-tahun').value = currentYear;
-                  
-                  applyFilters(); // Inisialisasi pertama kali
+                  applyFilters();
               }
           });
 
-          // Fungsi mengisi pilihan dropdown berdasarkan data yang tersedia
           function updateAllDatalists(filteredData) {
               const fill = (listId, key, sortArr = null) => {
                   const dl = document.getElementById(listId);
-                  // Ambil data unik dari data yang sudah terfilter
                   let vals = [...new Set(filteredData.map(d => d[key]?.trim()))].filter(v => v);
-                  
                   if (sortArr) vals.sort((a, b) => sortArr.indexOf(a.toUpperCase()) - sortArr.indexOf(b.toUpperCase()));
                   else vals.sort();
-                  
                   dl.innerHTML = '<option value="SEMUA">';
                   vals.forEach(v => dl.innerHTML += `<option value="${v}">`);
               };
-
               fill('l-group', colMap.group);
               fill('l-lokasi', colMap.lokasi);
               fill('l-auditor', colMap.auditor);
@@ -141,7 +161,6 @@
               const fB = document.getElementById('f-bulan').value;
               const fT = document.getElementById('f-tahun').value;
 
-              // Filter data utama
               const filtered = rawData.filter(d => 
                   (!fG || fG === 'SEMUA' || d[colMap.group]?.trim() === fG) && 
                   (!fL || fL === 'SEMUA' || d[colMap.lokasi]?.trim() === fL) && 
@@ -150,9 +169,7 @@
                   (!fT || fT === 'SEMUA' || d[colMap.tahun]?.trim() === fT)
               );
 
-              // Update list pilihan di filter lain agar sinkron
               updateAllDatalists(filtered);
-              // Update grafik dan angka
               updateDashboard(filtered);
           };
 
@@ -199,11 +216,15 @@
               charts[id] = new Chart(canvas, {
                   type: type,
                   data: { labels, datasets },
+                  plugins: [chartLabelsPlugin], // Panggil plugin label di sini
                   options: {
                       maintainAspectRatio: false,
-                      plugins: { legend: { display: type === 'line', position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } },
+                      layout: { padding: { top: 20 } }, // Ruang ekstra untuk angka di atas
+                      plugins: { 
+                          legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } 
+                      },
                       scales: {
-                          y: { min: 0, max: 100, grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } },
+                          y: { min: 0, max: 110, grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } },
                           x: { grid: { display: false }, ticks: { font: { size: 8, weight: '700' } } }
                       }
                   }
