@@ -2,7 +2,7 @@
   
   <style>
       #content .glass-card { background: white; border-radius: 1rem; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
-      #content .filter-select { background-color: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 600; color: #475569; outline: none; min-width: 120px; }
+      #content .filter-select { background-color: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 600; color: #475569; outline: none; }
       #content .stat-val { font-size: 2rem; font-weight: 800; color: #1e293b; line-height: 1; }
   </style>
 
@@ -13,11 +13,11 @@
   <div style="height: 60px;"></div>
 
   <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 32px;">
-      <select id="f-group" onchange="applyFilters()" class="filter-select"><option value="">GROUP</option></select>
-      <select id="f-lokasi" onchange="applyFilters()" class="filter-select"><option value="">LOKASI</option></select>
-      <select id="f-auditor" onchange="applyFilters()" class="filter-select"><option value="">AUDITOR</option></select>
-      <select id="f-bulan" onchange="applyFilters()" class="filter-select"><option value="">BULAN</option></select>
-      <select id="f-tahun" onchange="applyFilters()" class="filter-select"><option value="">TAHUN</option></select>
+      <select id="f-group" onchange="applyFilters()" class="filter-select"></select>
+      <select id="f-lokasi" onchange="applyFilters()" class="filter-select"></select>
+      <select id="f-auditor" onchange="applyFilters()" class="filter-select"></select>
+      <select id="f-bulan" onchange="applyFilters()" class="filter-select"></select>
+      <select id="f-tahun" onchange="applyFilters()" class="filter-select"></select>
   </div>
 
   <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; margin-bottom: 32px;">
@@ -66,157 +66,153 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <script>
-      let rawData = [], colMap = {}, charts = {};
-      const monthOrder = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
-
-      document.addEventListener("DOMContentLoaded", function() {
+      (function() {
           const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT88wHMtZWXtIH3qMCZkLm8S7gDYV6n42v8AHrF6YRpoIMsixdG4EfTiUKe2ERQ7HuAShHSW_mvTg4T/pub?output=csv';
-          
+          let rawData = [], colMap = {}, charts = {};
+          const monthOrder = ["JANUARI", "FEBRUARI", "MARET", "APRIL", "MEI", "JUNI", "JULI", "AGUSTUS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DESEMBER"];
+
           Papa.parse(csvUrl, {
-              download: true,
-              header: true,
-              skipEmptyLines: true,
+              download: true, header: true, skipEmptyLines: true,
               complete: function(results) {
                   const headers = results.meta.fields;
                   const find = (keys) => headers.find(h => keys.some(k => h.trim().toUpperCase() === k.toUpperCase()));
-                  
                   colMap = {
-                      group: find(['GROUP']),
-                      lokasi: find(['LOKASI', 'AREA']),
-                      auditor: find(['AUDITOR']),
-                      bulan: find(['BULAN']),
-                      tahun: find(['YEAR', 'TAHUN']),
-                      score5r: find(['5R']),
-                      s1: find(['S1']),
-                      s2: find(['S2']),
+                      group: find(['GROUP']), lokasi: find(['LOKASI', 'AREA']), auditor: find(['AUDITOR']),
+                      bulan: find(['BULAN']), tahun: find(['YEAR', 'TAHUN']), score5r: find(['5R']),
+                      s1: find(['S1']), s2: find(['S2']),
                       r1: find(['R1']), r2: find(['R2']), r3: find(['R3']), r4: find(['R4']), r5: find(['R5'])
                   };
-                  
-                  rawData = results.data.filter(d => d[colMap.group] && d[colMap.group].trim() !== "");
+                  rawData = results.data.filter(d => d[colMap.group]);
                   populateFilters(rawData);
                   applyFilters();
               }
           });
-      });
 
-      function populateFilters(data) {
-          const fill = (id, key, label, sortArr = null) => {
-              const s = document.getElementById(id);
-              if(!s) return;
-              let vals = [...new Set(data.map(d => d[key]?.trim()))].filter(v => v);
-              if (sortArr) {
-                  vals.sort((a, b) => sortArr.indexOf(a.toUpperCase()) - sortArr.indexOf(b.toUpperCase()));
-              } else {
-                  vals.sort();
-              }
-              s.innerHTML = `<option value="">SEMUA ${label}</option>`;
-              vals.forEach(v => s.innerHTML += `<option value="${v}">${v}</option>`);
-          };
-          fill('f-group', colMap.group, 'GROUP');
-          fill('f-lokasi', colMap.lokasi, 'LOKASI');
-          fill('f-auditor', colMap.auditor, 'AUDITOR');
-          fill('f-bulan', colMap.bulan, 'BULAN', monthOrder);
-          fill('f-tahun', colMap.tahun, 'TAHUN');
-      }
-
-      function applyFilters() {
-          const fG = document.getElementById('f-group').value;
-          const fL = document.getElementById('f-lokasi').value;
-          const fA = document.getElementById('f-auditor').value;
-          const fB = document.getElementById('f-bulan').value;
-          const fT = document.getElementById('f-tahun').value;
-
-          const filtered = rawData.filter(d => 
-              (!fG || d[colMap.group]?.trim() === fG) && 
-              (!fL || d[colMap.lokasi]?.trim() === fL) && 
-              (!fA || d[colMap.auditor]?.trim() === fA) && 
-              (!fB || d[colMap.bulan]?.trim() === fB) && 
-              (!fT || d[colMap.tahun]?.trim() === fT)
-          );
-          updateDashboard(filtered);
-      }
-
-      function updateDashboard(data) {
-          const getAvg = (list, key) => {
-              if (list.length === 0) return 0;
-              const sum = list.reduce((a, b) => a + (parseFloat(b[key]) || 0), 0);
-              return Math.round(sum / list.length);
+          window.populateFilters = function(data) {
+              const fill = (id, key, label, sortArr = null) => {
+                  const s = document.getElementById(id);
+                  let vals = [...new Set(data.map(d => d[key]?.trim()))].filter(v => v);
+                  if (sortArr) vals.sort((a, b) => sortArr.indexOf(a.toUpperCase()) - sortArr.indexOf(b.toUpperCase()));
+                  else vals.sort();
+                  s.innerHTML = `<option value="">SEMUA ${label}</option>`;
+                  vals.forEach(v => s.innerHTML += `<option value="${v}">${v}</option>`);
+              };
+              fill('f-group', colMap.group, 'GROUP');
+              fill('f-lokasi', colMap.lokasi, 'LOKASI');
+              fill('f-auditor', colMap.auditor, 'AUDITOR');
+              fill('f-bulan', colMap.bulan, 'BULAN', monthOrder);
+              fill('f-tahun', colMap.tahun, 'TAHUN');
           };
 
-          // Update Top Cards
-          document.getElementById('stat-5r').innerText = getAvg(data, colMap.score5r);
-          document.getElementById('stat-s1').innerText = getAvg(data, colMap.s1);
-          document.getElementById('stat-s2').innerText = getAvg(data, colMap.s2);
+          window.applyFilters = function() {
+              const fG = document.getElementById('f-group').value;
+              const fL = document.getElementById('f-lokasi').value;
+              const fA = document.getElementById('f-auditor').value;
+              const fB = document.getElementById('f-bulan').value;
+              const fT = document.getElementById('f-tahun').value;
 
-          // Trend Chart
-          const monthsInBatch = [...new Set(data.map(d => d[colMap.bulan]?.trim()))]
-              .sort((a, b) => monthOrder.indexOf(a.toUpperCase()) - monthOrder.indexOf(b.toUpperCase()));
-          const trendData = monthsInBatch.map(m => getAvg(data.filter(d => d[colMap.bulan] === m), colMap.score5r));
-          
-          renderChart('chartTrend', monthsInBatch, [
-              { label: 'SCORE', data: trendData, type: 'line', borderColor: '#10b981', backgroundColor: '#10b981', borderWidth: 3, pointRadius: 5, tension: 0.3 },
-              { label: 'TARGET', data: monthsInBatch.map(() => 95), type: 'line', borderColor: '#f59e0b', borderDash: [5, 5], borderWidth: 2, pointRadius: 0 }
-          ], 'line');
+              const filtered = rawData.filter(d => 
+                  (!fG || d[colMap.group]?.trim() === fG) && 
+                  (!fL || d[colMap.lokasi]?.trim() === fL) && 
+                  (!fA || d[colMap.auditor]?.trim() === fA) && 
+                  (!fB || d[colMap.bulan]?.trim() === fB) && 
+                  (!fT || d[colMap.tahun]?.trim() === fT)
+              );
+              updateDashboard(filtered);
+          };
 
-          // R1-R5 Summary
-          const rLabels = ['R1', 'R2', 'R3', 'R4', 'R5'];
-          const rValues = [getAvg(data, colMap.r1), getAvg(data, colMap.r2), getAvg(data, colMap.r3), getAvg(data, colMap.r4), getAvg(data, colMap.r5)];
-          renderChart('chartRSummary', rLabels, [{ label: 'Avg', data: rValues, backgroundColor: '#6366f1', borderRadius: 6 }]);
+          function updateDashboard(data) {
+              const uniqueGroups = [...new Set(data.map(d => d[colMap.group].trim()))].sort();
+              const uniqueMonths = [...new Set(data.map(d => d[colMap.bulan].trim()))]
+                  .sort((a, b) => monthOrder.indexOf(a.toUpperCase()) - monthOrder.indexOf(b.toUpperCase()));
 
-          // Group Breakdowns
-          const groups = [...new Set(data.map(d => d[colMap.group]?.trim()))].sort();
-          const scoreByGroup = groups.map(g => getAvg(data.filter(d => d[colMap.group] === g), colMap.score5r));
-          const s1ByGroup = groups.map(g => getAvg(data.filter(d => d[colMap.group] === g), colMap.s1));
-          const s2ByGroup = groups.map(g => getAvg(data.filter(d => d[colMap.group] === g), colMap.s2));
+              const getAvgGlobal = (targetKey) => {
+                  if (data.length === 0) return 0;
+                  const total = data.reduce((s, r) => s + (parseFloat(r[targetKey]) || 0), 0);
+                  return Math.round(total / data.length);
+              };
 
-          renderChart('chart5R', groups, [
-              { label: 'ACTUAL', data: scoreByGroup, backgroundColor: '#f59e0b', borderRadius: 4 },
-              { label: 'TARGET', data: groups.map(() => 95), backgroundColor: '#22d3ee', borderRadius: 4 }
-          ]);
-          renderChart('chartSafety', groups, [{ label: 'S1', data: s1ByGroup, backgroundColor: '#ef4444', borderRadius: 4 }]);
-          renderChart('chartEnergy', groups, [{ label: 'S2', data: s2ByGroup, backgroundColor: '#3b82f6', borderRadius: 4 }]);
-      }
+              const getAvgByFilter = (filterVal, filterKey, targetKey) => {
+                  const subset = data.filter(d => d[filterKey].trim() === filterVal);
+                  if (subset.length === 0) return 0;
+                  const total = subset.reduce((s, r) => s + (parseFloat(r[targetKey]) || 0), 0);
+                  return Math.round(total / subset.length);
+              };
 
-      function renderChart(id, labels, datasets, type = 'bar') {
-          const canvas = document.getElementById(id);
-          if(!canvas) return;
-          if(charts[id]) charts[id].destroy();
+              // Stats
+              document.getElementById('stat-5r').innerText = getAvgGlobal(colMap.score5r);
+              document.getElementById('stat-s1').innerText = getAvgGlobal(colMap.s1);
+              document.getElementById('stat-s2').innerText = getAvgGlobal(colMap.s2);
 
-          const labelPlugin = {
-              id: 'labelPlugin',
-              afterDraw: (chart) => {
-                  const { ctx } = chart;
-                  ctx.textAlign = 'center';
-                  ctx.textBaseline = 'bottom';
-                  ctx.font = 'bold 10px sans-serif';
-                  ctx.fillStyle = '#1e293b';
-                  chart.data.datasets.forEach((dataset, i) => {
-                      if (dataset.label === 'TARGET' && type === 'line') return;
-                      const meta = chart.getDatasetMeta(i);
-                      meta.data.forEach((element, index) => {
-                          const val = dataset.data[index];
-                          if (val !== null) ctx.fillText(val, element.x, element.y - 8);
+              // Trend Chart
+              const trendActual = uniqueMonths.map(m => getAvgByFilter(m, colMap.bulan, colMap.score5r));
+              renderChart('chartTrend', uniqueMonths, [
+                  { label: 'SCORE', data: trendActual, type: 'line', borderColor: '#10b981', backgroundColor: '#10b981', borderWidth: 3, pointRadius: 5, tension: 0.3 },
+                  { label: 'TARGET', data: uniqueMonths.map(() => 95), type: 'line', borderColor: '#f59e0b', borderDash: [5, 5], borderWidth: 2, pointRadius: 0 }
+              ], 'line');
+
+              // Summary R1-R5 Chart
+              const rLabels = ['R1', 'R2', 'R3', 'R4', 'R5'];
+              const rData = [
+                  getAvgGlobal(colMap.r1), getAvgGlobal(colMap.r2), getAvgGlobal(colMap.r3),
+                  getAvgGlobal(colMap.r4), getAvgGlobal(colMap.r5)
+              ];
+              renderChart('chartRSummary', rLabels, [{ label: 'Avg Score', data: rData, backgroundColor: '#6366f1', borderRadius: 6 }]);
+
+              // Group 5R Chart
+              renderChart('chart5R', uniqueGroups, [
+                  { label: 'ACTUAL', data: uniqueGroups.map(g => getAvgByFilter(g, colMap.group, colMap.score5r)), backgroundColor: '#f59e0b', borderRadius: 4 },
+                  { label: 'TARGET', data: uniqueGroups.map(() => 95), backgroundColor: '#22d3ee', borderRadius: 4 }
+              ]);
+
+              // Safety & Energy Charts
+              renderChart('chartSafety', uniqueGroups, [{ label: 'S1', data: uniqueGroups.map(g => getAvgByFilter(g, colMap.group, colMap.s1)), backgroundColor: '#ef4444', borderRadius: 4 }]);
+              renderChart('chartEnergy', uniqueGroups, [{ label: 'S2', data: uniqueGroups.map(g => getAvgByFilter(g, colMap.group, colMap.s2)), backgroundColor: '#3b82f6', borderRadius: 4 }]);
+          }
+
+          function renderChart(id, labels, datasets, type = 'bar') {
+              if(charts[id]) charts[id].destroy();
+
+              const labelPlugin = {
+                  id: 'labelPlugin',
+                  afterDraw: (chart) => {
+                      const { ctx } = chart;
+                      ctx.textAlign = 'center';
+                      ctx.textBaseline = 'bottom';
+                      ctx.font = 'bold 10px sans-serif';
+                      ctx.fillStyle = '#1e293b';
+
+                      chart.data.datasets.forEach((dataset, i) => {
+                          if (dataset.label === 'TARGET' && type === 'line') return;
+                          const meta = chart.getDatasetMeta(i);
+                          meta.data.forEach((element, index) => {
+                              const val = dataset.data[index];
+                              if (val !== null && val !== undefined) {
+                                  ctx.fillText(val, element.x, element.y - 8);
+                              }
+                          });
                       });
-                  });
-              }
-          };
-
-          charts[id] = new Chart(canvas, {
-              type: type,
-              data: { labels, datasets },
-              options: {
-                  maintainAspectRatio: false,
-                  layout: { padding: { top: 25 } },
-                  plugins: { legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } },
-                  scales: {
-                      y: { beginAtZero: true, max: 125, ticks: { font: { size: 9 } }, grid: { color: '#f1f5f9' } },
-                      x: { ticks: { font: { size: 9, weight: '700' } }, grid: { display: false } }
                   }
-              },
-              plugins: [labelPlugin]
-          });
-      }
+              };
+
+              charts[id] = new Chart(document.getElementById(id), {
+                  type: type,
+                  data: { labels, datasets },
+                  options: {
+                      maintainAspectRatio: false,
+                      layout: { padding: { top: 30 } },
+                      plugins: { 
+                          legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } 
+                      },
+                      scales: {
+                          y: { beginAtZero: true, max: 120, grid: { color: '#f1f5f9' }, ticks: { font: { size: 9 } } },
+                          x: { grid: { display: false }, ticks: { font: { size: 9, weight: '700' } } }
+                      }
+                  },
+                  plugins: [labelPlugin]
+              });
+          }
+      })();
   </script>
 </div>
