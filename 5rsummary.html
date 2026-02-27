@@ -1,63 +1,27 @@
-<div id="content" style="
-  padding: 40px 20px; 
-  max-width: 1200px; 
-  margin: auto; 
-  position: relative; 
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.2);
+<div style="
+  position: relative;
+  padding: 60px 0;
 ">
-  
-  <style>
-      #content .glass-card { 
-          background: rgba(255,255,255,0.15); 
-          backdrop-filter: blur(10px);
-          -webkit-backdrop-filter: blur(10px);
-          border-radius: 1rem; 
-          border: 1px solid rgba(255, 255, 255, 0.2); 
-          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1); 
-      }
 
-      #content .filter-input { 
-          background-color: rgba(255,255,255,0.2); 
-          border: 1px solid rgba(255,255,255,0.3); 
-          border-radius: 0.5rem; 
-          padding: 0.5rem 1rem; 
-          font-size: 0.75rem; 
-          font-weight: 600; 
-          color: #1e293b; 
-          outline: none; 
-          width: 100%; 
-          box-sizing: border-box; 
-      }
+  <!-- Background Layer -->
+  <div style="
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(30,58,138,0.25), rgba(15,23,42,0.35));
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 0;
+  "></div>
 
-      #content .stat-card-custom { 
-          display: flex; 
-          flex-direction: column; 
-          align-items: center; 
-          text-align: center; 
-      }
-
-      #content .stat-val { 
-          font-size: 3.5rem; 
-          font-weight: 800; 
-          color: #ffffff; 
-          line-height: 1; 
-          display: block; 
-          margin: 10px 0; 
-      }
-
-      .filter-group { 
-          display: flex; 
-          flex-direction: column; 
-          gap: 5px; 
-          flex: 1; 
-          min-width: 140px; 
-      }
-  </style>
+  <!-- Content -->
+  <div id="content" style="
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: auto;
+    position: relative;
+    z-index: 1;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  ">
 
   <h1 style="position: fixed; top: 0; left: 0; width: 100%; text-align: center; font-size: 1.5rem; text-shadow: 0 0 10px rgba(255,255,255,0.3); color: #fff; background-color: rgba(0, 0, 0, 0.7); z-index: 999; padding: 10px 0; margin: 0; backdrop-filter: blur(3px);">
     DASHBOARD AUDIT 5R
@@ -134,7 +98,8 @@
           <div style="height: 250px;"><canvas id="chartEnergy"></canvas></div>
       </div>
   </div>
-
+  </div>
+</div>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
