@@ -1,27 +1,12 @@
-<div style="
-  position: relative;
-  padding: 60px 0;
-">
-
-  <!-- Background Layer -->
-  <div style="
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(30,58,138,0.25), rgba(15,23,42,0.35));
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 0;
-  "></div>
-
-  <!-- Content -->
-  <div id="content" style="
-    padding: 40px 20px;
-    max-width: 1200px;
-    margin: auto;
-    position: relative;
-    z-index: 1;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  ">
+<div id="content" style="padding: 40px 20px; max-width: 1200px; margin: auto; position: relative; font-family: 'Plus Jakarta Sans', sans-serif;">
+  
+  <style>
+      #content .glass-card { background: white; border-radius: 1rem; border: 1px solid rgba(226, 232, 240, 0.8); box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); }
+      #content .filter-input { background-color: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 0.5rem 1rem; font-size: 0.75rem; font-weight: 600; color: #475569; outline: none; width: 100%; box-sizing: border-box; }
+      #content .stat-card-custom { display: flex; flex-direction: column; align-items: center; text-align: center; }
+      #content .stat-val { font-size: 3.5rem; font-weight: 800; color: #1e293b; line-height: 1; display: block; margin: 10px 0; }
+      .filter-group { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 140px; }
+  </style>
 
   <h1 style="position: fixed; top: 0; left: 0; width: 100%; text-align: center; font-size: 1.5rem; text-shadow: 0 0 10px rgba(255,255,255,0.3); color: #fff; background-color: rgba(0, 0, 0, 0.7); z-index: 999; padding: 10px 0; margin: 0; backdrop-filter: blur(3px);">
     DASHBOARD AUDIT 5R
@@ -98,8 +83,7 @@
           <div style="height: 250px;"><canvas id="chartEnergy"></canvas></div>
       </div>
   </div>
-  </div>
-</div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
